@@ -9,9 +9,7 @@ def detect_earthquake_events(data, sampling_rate, threshold_multiplier=3.0):
     noise_level = np.std(data)
     threshold = threshold_multiplier * noise_level
     earthquake_detected = np.abs(data) > threshold
-    event_magnitude = np.where(earthquake_detected, 
-                              np.log10(np.abs(data) + 1) * 2,
-                              0)
+    event_magnitude = np.where(earthquake_detected, np.log10(np.abs(data) + 1) * 2, 0)
     return earthquake_detected, event_magnitude
 
 def create_master_dataset(processed_files, output_dir="processed_data"):
@@ -128,115 +126,71 @@ def process_mseed_data(file_path, start_time=None, end_time=None, freqmin=1.0, f
         df.to_csv(csv_filename, index=False)
         print(f"Saved enhanced CSV with earthquake detection: {csv_filename}")
         
-        # STEP 11: Print summary statistics about the processed data
-        # This helps you understand what you're working with
         print(f"\nData Summary:")
-        print(f"Station: {trace.stats.station}")           # Which earthquake station recorded this
-        print(f"Channel: {trace.stats.channel}")             # Which direction (Z/N/E) was recorded
-        print(f"Start time: {trace.stats.starttime}")        # When the recording started
-        print(f"End time: {trace.stats.endtime}")            # When the recording ended
-        print(f"Duration: {trace.stats.endtime - trace.stats.starttime} seconds")  # Total recording time
-        print(f"Sample rate: {trace.stats.sampling_rate} Hz")  # How many measurements per second
-        print(f"Number of samples: {len(data)}")             # Total number of data points
-        print(f"Data range: {np.min(data):.6f} to {np.max(data):.6f}")  # Smallest and largest values
-        print(f"Data mean: {np.mean(data):.6f}")             # Average value (should be close to 0 after detrending)
-        print(f"Data std: {np.std(data):.6f}")               # Standard deviation (measure of signal strength)
+        print(f"Station: {trace.stats.station}")
+        print(f"Channel: {trace.stats.channel}")
+        print(f"Start time: {trace.stats.starttime}")
+        print(f"End time: {trace.stats.endtime}")
+        print(f"Duration: {trace.stats.endtime - trace.stats.starttime} seconds")
+        print(f"Sample rate: {trace.stats.sampling_rate} Hz")
+        print(f"Number of samples: {len(data)}")
+        print(f"Data range: {np.min(data):.6f} to {np.max(data):.6f}")
+        print(f"Data mean: {np.mean(data):.6f}")
+        print(f"Data std: {np.std(data):.6f}")
         
-        # Return the processed data for further analysis
         return st, data, df
     else:
         print("No data found after processing!")
         return None, None, None
 
-# =============================================================================
-# MAIN PROGRAM: Process all MSEED files in your dataset
-# =============================================================================
-# This section runs when you execute the script directly (not when importing it)
 if __name__ == "__main__":
+    mseed_dir = "mseed_data"
+    channel = "*Z"
+    freqmin = 1.0
+    freqmax = 20.0
     
-    # =========================================================================
-    # CONFIGURATION SETTINGS - Change these to customize your processing
-    # =========================================================================
-    mseed_dir = "mseed_data"        # Folder containing your raw MSEED files
-    channel = "*Z"                  # Which channel to process:
-                                   #   "*Z" = Vertical (up/down motion) - most common for earthquakes
-                                   #   "*N" = North-South horizontal motion
-                                   #   "*E" = East-West horizontal motion
-                                   #   "*"  = All channels (processes everything)
-    freqmin = 1.0                  # Minimum frequency for filtering (Hz)
-    freqmax = 20.0                 # Maximum frequency for filtering (Hz)
-    
-    # =========================================================================
-    # FIND ALL MSEED FILES TO PROCESS
-    # =========================================================================
-    # Check if the mseed_data folder exists
     if not os.path.exists(mseed_dir):
         print(f"Error: {mseed_dir} directory not found!")
-        print("Make sure you have a folder called 'mseed_data' with your MSEED files inside.")
         exit(1)
     
-    # Find all files ending with .mseed in the mseed_data folder
     mseed_files = [f for f in os.listdir(mseed_dir) if f.endswith('.mseed')]
     print(f"Found {len(mseed_files)} mseed files to process: {mseed_files}")
     print(f"Processing channel: {channel}")
     print(f"Bandpass filter: {freqmin}-{freqmax} Hz")
     
-    # =========================================================================
-    # PROCESS EACH MSEED FILE WITH ENHANCED FEATURES
-    # =========================================================================
-    # List to store processed CSV files for master dataset creation
     processed_csv_files = []
     
-    # Loop through each MSEED file and process it
     for mseed_file in mseed_files:
         file_path = os.path.join(mseed_dir, mseed_file)
         print(f"\n{'='*60}")
         print(f"Processing: {mseed_file}")
         print(f"{'='*60}")
         
-        # Try to process the file, catch any errors that might occur
         try:
-            # Example station and event metadata (you can customize these)
             station_info = {
-                'station_id': 'STATION_001',  # You can extract this from filename or metadata
+                'station_id': 'STATION_001',
                 'location': 'California, USA',
                 'latitude': 37.7749,
                 'longitude': -122.4194
             }
             
             event_info = {
-                'event_type': 'earthquake',  # Could be 'earthquake', 'noise', 'explosion', etc.
-                'magnitude': 3.2,           # Known magnitude if available
-                'depth': 10.5               # Event depth in km
+                'event_type': 'earthquake',
+                'magnitude': 3.2,
+                'depth': 10.5
             }
             
-            # Call our enhanced processing function with earthquake detection and metadata
-            st, data, df = process_mseed_data(
-                file_path, 
-                channel=channel, 
-                freqmin=freqmin, 
-                freqmax=freqmax,
-                station_info=station_info,
-                event_info=event_info
-            )
+            st, data, df = process_mseed_data(file_path, channel=channel, freqmin=freqmin, freqmax=freqmax, station_info=station_info, event_info=event_info)
             
-            # Check if processing was successful
             if st is not None:
                 print(f"Successfully processed {mseed_file}")
-                
-                # Add the processed CSV file to our list for master dataset
                 csv_filename = os.path.join("processed_data", f"{os.path.splitext(mseed_file)[0]}_processed.csv")
                 processed_csv_files.append(csv_filename)
             else:
                 print(f" Failed to process {mseed_file}")
         except Exception as e:
-            # If something goes wrong, print the error but continue with other files
             print(f" Error processing {mseed_file}: {str(e)}")
     
-    # =========================================================================
-    # CREATE MASTER DATASET
-    # =========================================================================
-    # After processing all files, create a master dataset combining everything
     if processed_csv_files:
         print(f"\n{'='*60}")
         print("CREATING MASTER DATASET")
@@ -252,9 +206,6 @@ if __name__ == "__main__":
         else:
             print(" Failed to create master dataset")
     
-    # =========================================================================
-    # COMPLETION MESSAGE
-    # =========================================================================
     print(f"\n{'='*60}")
     print("PROCESSING COMPLETE!")
     print(f"{'='*60}")
