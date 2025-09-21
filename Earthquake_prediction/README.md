@@ -3,7 +3,7 @@
 ## What It Does (Step by Step):
 
 ### 1. Takes Raw Earthquake Data
-- Reads your `.mseed` files (raw earthquake sensor recordings)
+- Reads the `.mseed` files (raw earthquake sensor recordings)
 - Like taking a messy recording and cleaning it up
 
 ### 2. Cleans the Data
