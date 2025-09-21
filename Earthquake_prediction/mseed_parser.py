@@ -58,7 +58,7 @@ def process_mseed_data(file_path, start_time=None, end_time=None, freqmin=1.0, f
         data = trace.data
         times = np.arange(len(data)) / trace.stats.sampling_rate
         
-        # 9. Save numpy array which is the data after the processing
+        # 9. Save numpy array which is the data after the processing      
         np_filename = os.path.join(output_dir, f"{os.path.splitext(os.path.basename(file_path))[0]}_processed.npy")
         np.save(np_filename, data)
         print(f"Saved numpy array: {np_filename}")
@@ -91,16 +91,27 @@ def process_mseed_data(file_path, start_time=None, end_time=None, freqmin=1.0, f
         print("No data found after processing!")
         return None, None, None
 
-# Process the MSEED file
+# Process all MSEED files
 if __name__ == "__main__":
-    # Process with default parameters
-    st, data, df = process_mseed_data('10-45-00.003.mseed')
+    # Find all mseed files in current directory
+    mseed_files = [f for f in os.listdir('.') if f.endswith('.mseed')]
+    print(f"Found {len(mseed_files)} mseed files to process: {mseed_files}")
     
-    # You can also specify custom parameters:
-    # st, data, df = process_mseed_data(
-    #     '10-45-00.003.mseed',
-    #     start_time='2025-07-31T10:30:00',
-    #     end_time='2025-07-31T10:45:00',
-    #     freqmin=0.5,
-    #     freqmax=15.0
-    # )
+    # Process each file
+    for mseed_file in mseed_files:
+        print(f"\n{'='*60}")
+        print(f"Processing: {mseed_file}")
+        print(f"{'='*60}")
+        
+        try:
+            st, data, df = process_mseed_data(mseed_file)
+            if st is not None:
+                print(f"✓ Successfully processed {mseed_file}")
+            else:
+                print(f"✗ Failed to process {mseed_file}")
+        except Exception as e:
+            print(f"✗ Error processing {mseed_file}: {str(e)}")
+    
+    print(f"\n{'='*60}")
+    print("Processing complete!")
+    print(f"{'='*60}")
