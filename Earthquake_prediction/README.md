@@ -34,15 +34,6 @@
 - Research
 - Pattern detection
 
-## Simple Analogy:
-It's like taking a box of messy photos and:
-1. **Cleaning** each photo (remove blur, fix lighting)
-2. **Labeling** each photo ("This shows an earthquake", "This is just noise")
-3. **Organizing** them into albums (individual files + one master album)
-4. **Adding captions** (where, when, what type of event)
-
-**Result:** A perfectly organized photo collection where you can easily find and analyze earthquake events!
-
 ## Output Files Created:
 
 ### Individual Files (per mseed file):
