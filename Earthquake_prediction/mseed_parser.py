@@ -209,12 +209,4 @@ if __name__ == "__main__":
     print(f"\n{'='*60}")
     print("PROCESSING COMPLETE!")
     print(f"{'='*60}")
-    print("Your enhanced earthquake dataset includes:")
-    print(" Individual CSV files with earthquake detection labels")
-    print(" Individual NPY files for fast data loading")
-    print(" Master dataset CSV combining all files")
-    print(" Master dataset NPY with amplitude data")
-    print("Station and event metadata")
-    print(" Earthquake event detection and magnitude estimates")
-    print("\nPerfect for machine learning and earthquake analysis!")
-    print(f"{'='*60}")
+    
