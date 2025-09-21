@@ -46,7 +46,7 @@
 
 ### What's in Each CSV File:
 - `time_seconds` - Time from start of recording
-- `amplitude` - Earthquake signal strength
+- `amplitude` - Earthquake signal strength at each point in time
 - `timestamp` - Actual date/time of measurement
 - `earthquake_detected` - True/False for each data point
 - `event_magnitude` - Estimated magnitude of events
@@ -55,5 +55,5 @@
 - `location` - Station location
 - `latitude/longitude` - Station coordinates
 - `event_type` - Type of seismic event
-- `magnitude` - Known event magnitude
+- `magnitude` - Official event magnitude from earthquake catalogs
 - `depth` - Event depth in km
